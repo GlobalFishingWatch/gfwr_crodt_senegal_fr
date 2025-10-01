@@ -1,3 +1,4 @@
+# pour charger les packages
 library(gfwr)
 library(tidyr)
 library(dplyr)
@@ -6,7 +7,7 @@ library(dplyr)
 # Uma busca simples
 # primeiro parametro é query
 
-info_vessel <- get_vessel_info(query = 431782000, #length 1 quer dizer um so
+info_vessel <- gfw_vessel_info(query = 431782000, #length 1 quer dizer um so
                                search_type = "search",
                                key = gfw_auth())
 
@@ -100,11 +101,24 @@ info_vessel$selfReportedInfo$vesselId[4] #seleciona o quarto elemento da coluna 
 
 id_test <- info_vessel$selfReportedInfo$vesselId[4] #seleciona o quarto elemento da coluna vesselId
 id_test
-get_vessel_info(search_type = "id", ids = id_test) #aí só volta a unica id associada
+
+
+gfw_vessel_info(search_type = "id", ids = id_test) #aí só volta a unica id associada
 
 id_test2 <- info_vessel$selfReportedInfo$vesselId[1] #seleciona o quarto elemento da
 id_test2
-get_vessel_info(search_type = "id", ids = id_test2) #aí só volta a unica id associada mas Ai combined sources info vai mostrar as demais vesselId associadas.
+gfw_vessel_info(search_type = "id", ids = id_test2) #aí só volta a unica id associada mas Ai combined sources info vai mostrar as demais vesselId associadas.
 
 info_vessel$registryOwners
 info_vessel$selfReportedInfo
+
+#######################
+#
+#
+#
+#
+senegal_trawlers <- gfw_vessel_info(where = "flag = 'SEN'",
+  search_type = "search",
+  key = gfw_auth())
+names(senegal_trawlers)
+dplyr::count(senegal_trawlers, )
