@@ -1,32 +1,37 @@
-# Oficina de treinamento no uso do pacote gfwr para acessar os dados de Global Fishing Watch
+# Package `gfwr` pour accéder aux APIs de Global Fishing Watch
 
-29 de Janeiro de 2025
+27-30 octobre 2025
 
 Andrea Sánchez-Tapia  
-Rocío Joo
+Rocío Joo  
+Rollan Geronimo  
+Paul Tuda  
+Adel Heenan  
 
-## Estrutura desde repositório
+## Structure
+
 
 ```
 .
-├── 1_configuracao_instalacao.R
+├── 1_configuration_installation.R
 ├── 2_breve_intro_a_R.R
-├── 3_get_vessel_info.R
-├── 4_get_event.R
-├── 5_get_raster.R
-├── 6_fazendo_mapas.R
-├── data
-│   ├── HC_Galapagos_HS.zip
-│   ├── HC_Galapagos_HighSeas.dbf
-│   ├── HC_Galapagos_HighSeas.prj
-│   ├── HC_Galapagos_HighSeas.shp
-│   └── HC_Galapagos_HighSeas.shx
-└── gfwr_brasil.Rproj
+├── 3_gfw_vessel_info.R
+├── 4_gfw_presence.R
+├── 5_gfw_event.R
+├── 6_gfw_ais_fishing_hours.R
+├── 7_maps_et_figures.R
+├── README.md
+├── data/
+└── gfwr_crodt.Rproj
 ```
 
-Por favor faça download do repositório em formato zip (última opção no menu verde acima, à direita)
+Téléchargez le répo em .zip en faisant click sur le bouton vert au-desus à droite.  (Dernière option). 
 
 ![image](https://github.com/user-attachments/assets/c971dca9-f416-410c-942b-4b0c07a40ee9)
 
+Sauvez le fichier `.zip`, décomprimez, et ouvrez le projet en cliquant sur `gfwr_crodt.Rproj`.
 
-Salve no HD e tire do ZIP. Faça click no arquivo `gfwr_brasil.Rproj` para abrir o projeto em RStudio. 
+
+
+Si vous utilisez git et github, faites fork et clone du répo. 
+

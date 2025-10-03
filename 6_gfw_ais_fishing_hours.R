@@ -11,9 +11,9 @@ library(tmap)
 # region = um código!
 
 # a gente busca o código pelo get_region_id()
-get_region_id(region_name = "Brazil",
+id_reg <- gfw_region_id(region_name = "Senegal",
               region_source = "EEZ")
-# O código é 8464
+# O código é 8371
 
 #get_region_id(region_name = "Brazil",
 #              region_source = "EEZ")
@@ -21,40 +21,25 @@ get_region_id(region_name = "Brazil",
 
 
 # entre janeiro e marco de 2023.
-brasil_fisheff <- get_raster(spatial_resolution = 'LOW',
+sen_fisheff <- gfw_ais_fishing_hours(spatial_resolution = 'LOW',
                              temporal_resolution = 'MONTHLY',
                              start_date = '2023-01-01',
                              end_date = '2023-04-01',
-                             region = 8464,
+                             region = 8371,
                              region_source = 'EEZ',
                              key = gfw_auth())
 # 524 timeout
-brasil_fisheff
 # colunas que voltam?
 # coordenadas, time range, vessel ids, apparent fishing hours
 
 # da para modificar a resolucao espacial, LOW = 0.1 grau, HIGH = 0.01 grau
-brasil_fisheff <- get_raster(spatial_resolution = 'HIGH',
-                             temporal_resolution = 'MONTHLY',
-                             start_date = '2023-01-01',
-                             end_date = '2023-04-01',
-                             region = 8464,
-                             region_source = 'EEZ',
-                             key = gfw_auth())
-brasil_fisheff #volta muito mais informacao
+
 
 
 
 # da para modificar a resolucao temporal
 # A coluna time range vai mostrar apenas ano, mes ou dia de ocorrencia
-brasil_fisheff <- get_raster(spatial_resolution = 'LOW',
-                             temporal_resolution = 'DAILY',
-                             start_date = '2021-01-01',
-                             end_date = '2021-10-01',
-                             region = 8464,
-                             region_source = 'EEZ',
-                             key = gfw_auth())
-brasil_fisheff
+
 
 # tambem tem como agrupar os resultados usando o parametro group_by
 # group_by = "VESSEL_ID" "GEARTYPE" and "FLAGANDGEARTYPE" vai devolver diferentes colunas
@@ -125,4 +110,7 @@ fishing_effort <- get_raster(spatial_resolution = 'LOW',
 
 fishing_effort
 unique(fishing_effort$flag) # varias bandeiras
+
+
+
 
