@@ -1,28 +1,19 @@
 # port visits
-# vamos continuar com o exemplo que tinhamos antes
+
 
 id_test <- "098ac6ed6-65a9-260b-fb84-8c932eb977ae"
 
 "2ca1c3012-2271-15cd-ea08-2e536333f615"
 
-visitas_porto <- gfw_event(event_type = "PORT_VISIT",
+visites_port <- gfw_event(event_type = "PORT_VISIT",
           vessels = "098ac6ed6-65a9-260b-fb84-8c932eb977ae",
           start_date = "2017-01-26",
           end_date = "2022-12-31",
           key = gfw_auth())
-names(visitas_porto)
+names(visites_port)
 
-View(visitas_porto)
-visitas_porto %>% tidyr::unnest_wider(event_info) %>% View()
-
-# da para filtrar só pela confidence
-gfw_event(event_type = "PORT_VISIT",
-          vessels = id_test,
-          start_date = "2017-01-26",
-          end_date = "2022-12-31",
-          confidence = c(4), # only for port visits
-          key = gfw_auth())
-
+View(visites_port)
+visites_port %>% tidyr::unnest_wider(event_info) %>% View()
 
 gfw_event(event_type = "PORT_VISIT",
           vessels = id_test,

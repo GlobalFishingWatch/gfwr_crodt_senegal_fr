@@ -3,84 +3,56 @@ library(gfwr)
 library(tidyr)
 library(dplyr)
 
-# Começamos com o help da funcao
+# Toujours commencer par le help de la fonction
 # Uma busca simples
 # primeiro parametro é query
 
-info_vessel <- gfw_vessel_info(query = 431782000, #length 1 quer dizer um so
+info_vessel <- gfw_vessel_info(query = 431782000, #length 1: un seul
                                search_type = "search",
                                key = gfw_auth())
 
-# search_type = "search" e key = gfw_auth() sao os defaults
-# essa busca é equivalente a get_vessel_info(431782000)
+# search_type = "search" e key = gfw_auth() sont les defaults
+# cette commande est équivalente a gfw_vessel_info(431782000)
 
-# 2 vessels! como assim.
+# 2 vessels!
 
 
-# exploremos o objeto
-# nomes
-names(info_vessel) # sete partes (slots) com informacao
-# acessar com $ cifrao
+# explorant l'objet
+# noms
+names(info_vessel) # sept parties
+# selectionner avec signe dolar $
 info_vessel$dataset
 
-# ou com colchete []
-info_vessel["dataset"]
+# ou crochets []
+info_vessel["registryInfoTotalRecords"]
 
-#melhor com $ porque autocompleta
+# conseil: avec % autocomplete suggère
 
-# Explorando o output:
-# 1 Informacao de AIS em selfReportedInfo:
+# 1. Info AIS $selfReportedInfo:
 
 info_vessel$selfReportedInfo
-info_vessel$selfReportedInfo$ssvid
-info_vessel$selfReportedInfo$imo
 names(info_vessel$selfReportedInfo)
 View(info_vessel$selfReportedInfo)
 
-# o mmsi - ssvid
-info_vessel$selfReportedInfo$ssvid
-# retorna o que foi pedido 431782000 e mais outros.
-
-# ver o index para entender como vesselid se agrupam juntos
-info_vessel$selfReportedInfo[, c("index", "vesselId")]
-# pelo index sao dois barcos, os tres primeiros e o quarto
-
-# View do objeto o que dá para ver:
-# diferente vesselId para cada segmento por datas
-# o primeiro barco tem tudo o mesmo IMO
-# nem todos tem o mesmo numero de posicoes
-# ...
-
-# Informacao dos registros em registryInfo
-info_vessel$registryInfo #os dois barcos
-
-View(info_vessel$registryInfo)
-
-# tem informacao complementar! IMO do segundo que nao estava no AIS, callsign
-# tambem geartyper, tonnage, tipo de pesca Longline ou apenas "fishing"
-# quer dizer que o algoritmo de GFW ainda nao consegui classificar esse barco além
-# dessa categoria.
-
-
-# Autorizacoes
-info_vessel$registryPublicAuthorizations
-info_vessel$registryPublicAuthorizations %>% unnest(sourceCode)
-#quando vcs encontrem a informacao oculta usem essa funcao unnest do pacote tidyr
-# olha como o index aqui é importante só temos autorizacoes pro primeiro barco
-
-
-# Outros slots
-names(info_vessel)
-info_vessel$dataset
-info_vessel$registryInfoTotalRecords
+# 2. registre $registryInfo
 info_vessel$registryInfo
 
-# quem é dono do barco?
+# info supplémentaire! IMO du deuxième par ex. callsign
+# geartype, tonnage
+
+
+# 3 Autorizations
+info_vessel$registryPublicAuthorizations
+info_vessel$registryPublicAuthorizations %>% unnest(sourceCode)
+# quando vous trouvez des info ocultes utilisez la fonction unnest de tidyr
+
+# 4 Propriétaires
+
 info_vessel$registryOwners
 info_vessel$registryOwners %>% unnest(sourceCode)
 
-View(info_vessel$combinedSourcesInfo)
-View(info_vessel$registryInfo)
+#
+View(info_vessel$combinedSourcesInfo) #geartypes qui viennent du modèle? Ask Willa and Gisela!
 
 
 # Da para inferir qualquer comportamento suspeito?
@@ -94,31 +66,54 @@ info_vessel$selfReportedInfo[c("transmissionDateFrom", "transmissionDateTo", "ss
 # o mmsi que a gente buscou nao foi utilizado ao mesmo tempo! pode ser um caso simples de
 # reuso / reciclagem de mmsi
 
-# tem outros argumentos na funcao
-
-info_vessel$selfReportedInfo$vesselId[4] #seleciona o quarto elemento da coluna vesselId
 
 
-id_test <- info_vessel$selfReportedInfo$vesselId[4] #seleciona o quarto elemento da coluna vesselId
-id_test
+## REQUEST PAR ID
+
+info_vessel$selfReportedInfo$vesselId[4]
 
 
-gfw_vessel_info(search_type = "id", ids = id_test) #aí só volta a unica id associada
+id <- info_vessel$selfReportedInfo$vesselId[4]
+id
+
+
+id_search <- gfw_vessel_info(search_type = "id", ids = id) #aí só volta a unica id associada
 
 id_test2 <- info_vessel$selfReportedInfo$vesselId[1] #seleciona o quarto elemento da
 id_test2
 gfw_vessel_info(search_type = "id", ids = id_test2) #aí só volta a unica id associada mas Ai combined sources info vai mostrar as demais vesselId associadas.
-
-info_vessel$registryOwners
-info_vessel$selfReportedInfo
 
 #######################
 #
 #
 #
 #
-senegal_trawlers <- gfw_vessel_info(where = "flag = 'SEN'",
-  search_type = "search",
-  key = gfw_auth())
+senegal_trawlers2 <- gfw_vessel_info(where = "flag = 'SEN'",
+  search_type = "search", print_request = TRUE
+  )
 names(senegal_trawlers)
-dplyr::count(senegal_trawlers, )
+
+senegal_trawlers$selfReportedInfo[, c("index", "vesselId")]
+
+# On va utiliser des fonctions de R pour explorer cet objet
+
+senegal_trawlers$selfReportedInfo[, c("index", "vesselId")] |> tail()
+# 5818 navires
+
+nrow(senegal_trawlers$selfReportedInfo)
+tail(senegal_trawlers$selfReportedInfo)
+# 5943 vessel id
+unique(senegal_trawlers$selfReportedInfo[, c("vesselId")]) #5932 vesselid
+
+which(duplicated(senegal_trawlers$selfReportedInfo$vesselId))
+
+id_dinteret <- senegal_trawlers$selfReportedInfo[which(duplicated(senegal_trawlers$selfReportedInfo$vesselId)),]$vesselId
+
+senegal_trawlers$selfReportedInfo |> filter(vesselId %in% id_dinteret) |> View()
+
+
+View(senegal_trawlers$registryInfo) #most vessels have no registry
+any(senegal_trawlers$registryInfo$vesselInfoReference %in% id_dinteret)
+any(senegal_trawlers$registryInfo$vesselInfoReference %in% senegal_trawlers$selfReportedInfo$vesselId)
+
+####NOTA AQUI, INVESTIGAR LOS DUPLICADOS EN LA FUNCION Y PREGUNTAR SOBRE LOS QUE VUELVEN SIN
