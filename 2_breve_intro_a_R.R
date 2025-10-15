@@ -118,6 +118,9 @@ dataframe2 <- data.frame(var1 = c(1, 3, 4),
                         var2 = c("b", "oi", 4),
                         var3 = c(TRUE, TRUE, FALSE))
 dataframe2
+
+names(dataframe2)
+
 # chaque colonne est un vecteur: éléments du même type
 # MAIS les colonnes n'ont pas besoin d'être du même type
 # Exemple : Un data frame de trois colonnes
@@ -151,9 +154,11 @@ str(liste)
 
 # Il y a des façons différentes d'accéder directement à des éléments particuliers
 # d'une liste
-liste[[1]]
-liste$numeriques
+liste[[1]] # crochets
+liste$numeriques # signe dollar
+liste[["numeriques"]]
 
 liste[[1]][2:3]
 liste$numeriques[2:3]
+liste[["numeriques"]][2:3]
 
