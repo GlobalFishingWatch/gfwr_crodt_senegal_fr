@@ -93,21 +93,40 @@ nrow(senegal_trawlers$selfReportedInfo) # 217
 tail(senegal_trawlers$selfReportedInfo)
 unique(senegal_trawlers$selfReportedInfo[, c("vesselId")]) # 205 vesselid
 
+# On enlève les duplicats de vesselId dans selfReportedInfo
 ind_dup <- which(duplicated(senegal_trawlers$selfReportedInfo$vesselId))
-sen_trawlers_nodup <- senegal_trawlers$selfReportedInfo[-ind_dup, ]
+sen_trawlers_nodup <- senegal_trawlers$selfReportedInfo[-ind_dup, ] %>% unnest(sourceCode)
 
-#####################################
+# Si on veut filtrer pour une période de temps et sélectionner un
+# sous-échantillon des colonnes
+str(sen_trawlers_nodup)
 
+# On transforme d'abord les dates de format caractère en format POSIXct (date)
+sen_trawlers_nodup$transmissionDateFrom <- as.POSIXct(
+  sen_trawlers_nodup$transmissionDateFrom, format = "%Y-%m-%dT%H:%M:%OSZ", tz = "UTC")
+sen_trawlers_nodup$transmissionDateTo <- as.POSIXct(
+  sen_trawlers_nodup$transmissionDateTo, format = "%Y-%m-%dT%H:%M:%OSZ", tz = "UTC")
 
-id_dinteret <- senegal_trawlers$selfReportedInfo[which(duplicated(senegal_trawlers$selfReportedInfo$vesselId)),]$vesselId
-senegal_trawlers$selfReportedInfo |> filter(vesselId %in% id_dinteret) |> View()
+# On peut sortir les données par ssvid, vesselId and first transmission date
+sen_trawlers_nodup %>%
+  arrange(ssvid, vesselId, transmissionDateFrom) %>% View()
 
+# On filtre et sélectionne
+filtres_date <- sen_trawlers_nodup %>% filter(transmissionDateFrom > "2020-01-01" &
+                               transmissionDateTo < "2025-01-01") %>%
+  select(index, ssvid, shipname, callsign, imo, transmissionDateFrom, transmissionDateTo)
+length(unique(filtres_date$index)) # 33 navires
 
-View(senegal_trawlers$registryInfo) #most vessels have no registry
-any(senegal_trawlers$registryInfo$vesselInfoReference %in% id_dinteret)
-any(senegal_trawlers$registryInfo$vesselInfoReference %in% senegal_trawlers$selfReportedInfo$vesselId)
+# D'autres filtres avec where
+sen_trawlers_dates <- gfw_vessel_info(where = "flag = 'SEN' AND geartypes = 'TRAWLERS' AND
+                transmissionDateFrom > '2020-01-01' AND
+                transmissionDateTo < '2025-01-01'",
+                search_type = "search", print_request = TRUE
+)
+# On enlève les duplicats de vesselId dans selfReportedInfo
+ind_dup_2 <- which(duplicated(sen_trawlers_dates$selfReportedInfo$vesselId))
+sen_trawlers_dates_nodup <- sen_trawlers_dates$selfReportedInfo[-ind_dup_2, ] %>%
+  unnest(sourceCode)  %>%
+  select(index, ssvid, shipname, callsign, imo, transmissionDateFrom, transmissionDateTo)
 
-View(senegal_trawlers$combinedSourcesInfo |> filter(vesselId %in% id_dinteret))
-
-####NOTA AQUI, INVESTIGAR LOS DUPLICADOS EN LA FUNCION Y PREGUNTAR SOBRE LOS QUE VUELVEN SIN
-
+length(unique(sen_trawlers_dates_nodup$index)) # 39 navires (and results outside of the date range)
