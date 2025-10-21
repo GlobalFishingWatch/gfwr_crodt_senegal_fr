@@ -46,9 +46,6 @@ info_vessel$registryPublicAuthorizations %>% unnest(sourceCode)
 info_vessel$registryOwners
 info_vessel$registryOwners %>% unnest(sourceCode)
 
-#
-View(info_vessel$combinedSourcesInfo) #geartypes qui viennent du modèle? Ask Willa and Gisela!
-
 # S'agit-il d'un comportement suspect ?
 # Rappel 1 : si un navire change de pavillon, il doit changer de MMSI (ssvid)
 # Rappel 2 : un MMSI peut être réciclé
@@ -62,19 +59,6 @@ info_vessel$selfReportedInfo[c("transmissionDateFrom", "transmissionDateTo", "ss
 # Il semblerait être un cas de réciclage de MMSI
 
 
-## RECHERCHE PAR ID
-
-info_vessel$selfReportedInfo$vesselId[4]
-
-id <- info_vessel$selfReportedInfo$vesselId[4]
-id
-
-# Pour faire une recherche d'information sur un navire pour un vessel ID spécifique :
-id_search <- gfw_vessel_info(search_type = "id", ids = id)
-
-
-#######################
-#
 #
 # Si on veut l'info de tous les chalutiers sénégalais avec AIS ou registres compilés
 # par GFW :
@@ -107,7 +91,7 @@ sen_trawlers_nodup$transmissionDateFrom <- as.POSIXct(
 sen_trawlers_nodup$transmissionDateTo <- as.POSIXct(
   sen_trawlers_nodup$transmissionDateTo, format = "%Y-%m-%dT%H:%M:%OSZ", tz = "UTC")
 
-# On peut sortir les données par ssvid, vesselId and first transmission date
+# On peut ordonner les données par ssvid, vesselId and first transmission date
 sen_trawlers_nodup %>%
   arrange(ssvid, vesselId, transmissionDateFrom) %>% View()
 
@@ -129,4 +113,15 @@ sen_trawlers_dates_nodup <- sen_trawlers_dates$selfReportedInfo[-ind_dup_2, ] %>
   unnest(sourceCode)  %>%
   select(index, ssvid, shipname, callsign, imo, transmissionDateFrom, transmissionDateTo)
 
-length(unique(sen_trawlers_dates_nodup$index)) # 39 navires (and results outside of the date range)
+length(unique(sen_trawlers_dates_nodup$index)) # 39 navires (et on explique pourquoi)
+
+
+## RECHERCHE PAR ID
+
+info_vessel$selfReportedInfo$vesselId[4]
+
+id <- info_vessel$selfReportedInfo$vesselId[4]
+id
+
+# Pour faire une recherche d'information sur un navire pour un vessel ID spécifique :
+id_search <- gfw_vessel_info(search_type = "id", ids = id)
