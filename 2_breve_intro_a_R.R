@@ -1,68 +1,66 @@
-# R vs RStudio. langage vs logiciel qui communique avec R. Il y a d'autres modes
-# d'interaction avec R (utiliser R directement aussi)
+# Rappel : R vs RStudio. langage vs logiciel qui communique avec R.
+# Il y a d'autres modes d'interaction avec R (utiliser R directement aussi)
 
+############################### RStudio ######################################
 # Quatre panneaux
 
-# 1. scripts, fichiers avec l'extension .R
-  # control + enter pour envoyer au console.
-
-# 2. console. où R roule
-# > console prêt a recevoir une commande.
-# + à l'attente. Erreur commune par ex. une parenthèse n'est pas fermée correctement
-
+# 1. Panneau source. Scripts, principalement des fichiers avec l'extension .R
 # control + enter pour envoyer au console. commandes simples:
 2 + 2
 
+# 2. Panneau console, terminal et travaux en arrière plan. Où R est tourné.
+# > console prêt a recevoir une commande.
+# + à l'attente. Erreur commune par ex. une parenthèse n'est pas fermée correctement
 
-# Panneaux 3. et 4. avec des tabs que l'on peut réorganizer.
-# (Tools > )Global Options > Pane Layout
+# 3. et 4. Panneaux avec des onglets que l'on peut réorganiser.
+# Par défaut, en haut à droite : Environnement, Historique, Connexions, Git
+# (si en control de versions), et Didacticiel
+# et en bas à droite : Fichiers, Graphiques, Packages, Aide, Tracés et Présentations
+# (Tools > ) Global Options > Pane Layout
 
-# Environment: Objets sauvés dans la mémoire RAM de l'ordinateur.
-# Crées pendant la session.
+# Onglet environnement : Objets sauvés de manière temporaire dans la mémoire RAM
+# de l'ordinateur. Crées pendant la session.
 #
-# Pour sauver: commande <- (préférée) ou =
+# Pour sauver dans l'environnement de travail : commande <- (préféré) ou =
 # ex.
 
 trois <- 3
-
 # un objet trois doit apparaitre dans l'environment
 
 
-# Histoire des commandes
-# Packages: packages installés (CRAN install packages("xxx"))
+# Onglet history. Historique des commandes.
 
-# Files: permet de naviguer la structure des fichers de l'ordinateur
+# Onglet files : permet de naviguer la structure des fichiers de l'ordinateur
 
-# Plots: où les plots vont apparaître
+# Onglet plots: où les graphiques vont apparaître
 
-# Help: menus d'aide
+# Onglet packages : packages installés (CRAN install packages("xxx"))
+
+# Ongle help: menus d'aide
 # pour actionner le help: ? ou help()
 
-## COMMANDES BASIQUES
+## Commandes de base
 # Charger un package
 library(gfwr)
 
-# chercher le menu d'aide
+# Chercher le menu d'aide
 help("gfwr")
-# Index
 
 help("gfw_vessel_info")
-
-
-# Toujours la même structure
+# Toujours la même structure :
 # Description
-# Usage (arguments, leur ordre, les valeur par défaut
-# Arguments: une explication de chaque un, quelques informations par ex. "numeric"
-# pour indiquer qu'il faut utiliser une valuer numérique
+# Usage (arguments, leur ordre, les valeurs par défaut
+# Arguments: une explication de chaque un, quelques informations
+# par ex. "numeric" pour indiquer qu'il faut utiliser une valuer numérique
 # Details: informations utiles
 # Examples
 # on peut copier coller, ou selectionner et exécuter
 
 
-# Types d'objets sur R
+##################### Types d'objets sur R ####################################
 
 # Classes
-# numeric character, logical,
+# numérique, caractère, logique,
 3
 "a"
 TRUE
@@ -72,22 +70,18 @@ class("a")
 class("3")
 class(TRUE)
 
-# Il y a d'autres come integer: nombres entiers.
+# Il y a d'autres come integer: un nombre entier.
 3L
 class(3L)
 
-
-
-# Vecteurs: Crées avec la fonction c() -> "concatenate"
-3
-
-c(3, 2, 1) #ne crée pas d'objet
+# Vecteurs: avec la fonction c() -> "concatenate"
+c(3, 2, 1) # ne crée pas d'objet
 objet <- c(3, 2, 1)
 class(objet)
 is(objet)
 
 # Si on mélange des caractères, numériques et logiques,
-# character aura dominance sur numeric et sur logical
+# caractère prévaudra sur numerique et sur logique
 mix <- c(3, "a")
 class(mix)
 
@@ -95,7 +89,7 @@ mix <- c(3, "a", TRUE)
 mix
 class(mix)
 
-# numeric remporte sur logique: TRUE = 1 FALSE = 0
+# numeric prévaut sur logique: TRUE = 1 FALSE = 0
 mix <- c(TRUE, 1)
 mix
 class(mix)
@@ -105,15 +99,14 @@ mix <- c(FALSE, 1)
 mix
 class(mix)
 
-# Important parce que les fonctions diront le type de donnée d'entrée.
-# logical: TRUE ou FALSE
-# numeric: 3, pas "3"
+# Les classes et les rapports entre elles sont importantes parce que les
+# fonctions sont créées pour opérer sur des types de données spécifiques
+# ex. logical: TRUE ou FALSE
+# ex. numeric: 3, pas "3"
 
 
-# Dataframes (tables) de plusieurs manières.
-# La plus commune: lisez un fichier
-# excel
-# csv ou txt
+## Dataframes (tables)
+# C'est le format le plus commun lorsqu'on lit un fichier (excel, csv, txt) sur R
 
 dataframe1 <- data.frame(var1 = "a",
                          var2 = "b",
@@ -125,8 +118,47 @@ dataframe2 <- data.frame(var1 = c(1, 3, 4),
                         var2 = c("b", "oi", 4),
                         var3 = c(TRUE, TRUE, FALSE))
 dataframe2
+
+names(dataframe2)
+
 # chaque colonne est un vecteur: éléments du même type
 # MAIS les colonnes n'ont pas besoin d'être du même type
-# Character: nom, Numeric: nombre d'heures, Logical: est-ce un navire de pêche: TRUE FALSE)
+# Exemple : Un data frame de trois colonnes
+# Une colonne caractère : nom du navire,
+# Une colonne numérique : nombre d'heures,
+# Une colonne logique : est-il un navire de pêche ? TRUE FALSE
 
 # Au cours de cette semaine on verra des fonctions et suites de commandes pour selectionner des données.
+
+
+## Listes
+
+# Une liste est un objet avec une structure beaucoup moin rigide.
+# Ses éléments peuvent être de n'importe quel nature (y compris d'autres listes).
+
+objet1 <- c(1, 3, 4)
+objet2 <- c("b", "oi", 4)
+objet3 <- c(TRUE, TRUE, FALSE)
+
+liste <- list(objet1, objet2, objet3)
+
+# On peut créer une liste dont les éléments sont nommés :
+liste_nomee <- list(numeriques = objet1,
+                    caracteres = objet2,
+                    logiques = objet3)
+
+# On peut aussi donner des noms a une liste déjà créée :
+names(liste) <- c("numeriques", "caracteres", "logiques")
+
+str(liste)
+
+# Il y a des façons différentes d'accéder directement à des éléments particuliers
+# d'une liste
+liste[[1]] # crochets
+liste$numeriques # signe dollar
+liste[["numeriques"]]
+
+liste[[1]][2:3]
+liste$numeriques[2:3]
+liste[["numeriques"]][2:3]
+

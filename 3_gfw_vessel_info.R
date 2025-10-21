@@ -1,45 +1,41 @@
-# pour charger les packages
+# On charger les packages
 library(gfwr)
 library(tidyr)
 library(dplyr)
 
-# Toujours commencer par le help de la fonction
-# Uma busca simples
-# primeiro parametro é query
+# Si on n'est pas très habitué à utiliser une fonction, c'est mieux de commencer
+# par le help de la fonction
+help(gfw_vessel_info)
 
-info_vessel <- gfw_vessel_info(query = 431782000, #length 1: un seul
+# On commence par une recherche simple avec le paramètre query
+
+info_vessel <- gfw_vessel_info(query = 431782000, #length 1: un seul marqueur
                                search_type = "search",
                                key = gfw_auth())
 
-# search_type = "search" e key = gfw_auth() sont les defaults
+# search_type = "search" et key = gfw_auth() sont les valeurs par défaut
 # cette commande est équivalente a gfw_vessel_info(431782000)
 
-# 2 vessels!
+# 2 navires !
 
 
 # explorant l'objet
-# noms
-names(info_vessel) # sept parties
-# selectionner avec signe dolar $
-info_vessel$dataset
+# noms de l'objet
+names(info_vessel) # sept éléments
 
-# ou crochets []
-info_vessel["registryInfoTotalRecords"]
-
-# conseil: avec % autocomplete suggère
+info_vessel$dataset # dollar
+info_vessel["registryInfoTotalRecords"] # crochets
 
 # 1. Info AIS $selfReportedInfo:
-
 info_vessel$selfReportedInfo
 names(info_vessel$selfReportedInfo)
 View(info_vessel$selfReportedInfo)
 
 # 2. registre $registryInfo
 info_vessel$registryInfo
-
+View(info_vessel$registryInfo)
 # info supplémentaire! IMO du deuxième par ex. callsign
 # geartype, tonnage
-
 
 # 3 Autorizations
 info_vessel$registryPublicAuthorizations
@@ -47,50 +43,44 @@ info_vessel$registryPublicAuthorizations %>% unnest(sourceCode)
 # quando vous trouvez des info ocultes utilisez la fonction unnest de tidyr
 
 # 4 Propriétaires
-
 info_vessel$registryOwners
 info_vessel$registryOwners %>% unnest(sourceCode)
 
 #
 View(info_vessel$combinedSourcesInfo) #geartypes qui viennent du modèle? Ask Willa and Gisela!
 
+# S'agit-il d'un comportement suspect ?
+# Rappel 1 : si un navire change de pavillon, il doit changer de MMSI (ssvid)
+# Rappel 2 : un MMSI peut être réciclé
 
-# Da para inferir qualquer comportamento suspeito?
-# mmsi pode ser reutilizado, essa é uma das desvantagens
-# toda mudanca de bandeira precisa de mudanca no MMSI/ssvid!
-# podemos explorar as datas que o mmsi foi utilizado em cada barco:
+# On peut explorer les dates auxquelles le MMSI a été utilisé (AIS) par chaque navire
 info_vessel$selfReportedInfo[c("transmissionDateFrom", "transmissionDateTo", "ssvid", "index", "flag")]
-#vamos organizar por datas
+# on trie les données par date
 info_vessel$selfReportedInfo[c("transmissionDateFrom", "transmissionDateTo", "ssvid", "index")] %>%
   arrange(transmissionDateFrom, transmissionDateTo)
-# o mmsi que a gente buscou nao foi utilizado ao mesmo tempo! pode ser um caso simples de
-# reuso / reciclagem de mmsi
+# Le MMSI n'a pas été utilisé par les deux navires au même temps !
+# Il semblerait être un cas de réciclage de MMSI
 
 
-
-## REQUEST PAR ID
+## RECHERCHE PAR ID
 
 info_vessel$selfReportedInfo$vesselId[4]
-
 
 id <- info_vessel$selfReportedInfo$vesselId[4]
 id
 
+# Pour faire une recherche d'information sur un navire pour un vessel ID spécifique :
+id_search <- gfw_vessel_info(search_type = "id", ids = id)
 
-id_search <- gfw_vessel_info(search_type = "id", ids = id) #aí só volta a unica id associada
-
-id_test2 <- info_vessel$selfReportedInfo$vesselId[1] #seleciona o quarto elemento da
-id_test2
-gfw_vessel_info(search_type = "id", ids = id_test2) #aí só volta a unica id associada mas Ai combined sources info vai mostrar as demais vesselId associadas.
 
 #######################
 #
 #
-#
-#
-senegal_trawlers2 <- gfw_vessel_info(where = "flag = 'SEN'",
+# Si on veut l'info de tous les chalutiers sénégalais avec AIS ou registres compilés
+# par GFW :
+senegal_trawlers <- gfw_vessel_info(where = "flag = 'SEN' AND geartypes = 'TRAWLERS'",
   search_type = "search", print_request = TRUE
-  )
+  ) # 118 total vessels
 names(senegal_trawlers)
 
 senegal_trawlers$selfReportedInfo[, c("index", "vesselId")]
@@ -98,22 +88,45 @@ senegal_trawlers$selfReportedInfo[, c("index", "vesselId")]
 # On va utiliser des fonctions de R pour explorer cet objet
 
 senegal_trawlers$selfReportedInfo[, c("index", "vesselId")] |> tail()
-# 5818 navires
 
-nrow(senegal_trawlers$selfReportedInfo)
+nrow(senegal_trawlers$selfReportedInfo) # 217
 tail(senegal_trawlers$selfReportedInfo)
-# 5943 vessel id
-unique(senegal_trawlers$selfReportedInfo[, c("vesselId")]) #5932 vesselid
+unique(senegal_trawlers$selfReportedInfo[, c("vesselId")]) # 205 vesselid
 
-which(duplicated(senegal_trawlers$selfReportedInfo$vesselId))
+# On enlève les duplicats de vesselId dans selfReportedInfo
+ind_dup <- which(duplicated(senegal_trawlers$selfReportedInfo$vesselId))
+sen_trawlers_nodup <- senegal_trawlers$selfReportedInfo[-ind_dup, ] %>% unnest(sourceCode)
 
-id_dinteret <- senegal_trawlers$selfReportedInfo[which(duplicated(senegal_trawlers$selfReportedInfo$vesselId)),]$vesselId
+# Si on veut filtrer pour une période de temps et sélectionner un
+# sous-échantillon des colonnes
+str(sen_trawlers_nodup)
 
-senegal_trawlers$selfReportedInfo |> filter(vesselId %in% id_dinteret) |> View()
+# On transforme d'abord les dates de format caractère en format POSIXct (date)
+sen_trawlers_nodup$transmissionDateFrom <- as.POSIXct(
+  sen_trawlers_nodup$transmissionDateFrom, format = "%Y-%m-%dT%H:%M:%OSZ", tz = "UTC")
+sen_trawlers_nodup$transmissionDateTo <- as.POSIXct(
+  sen_trawlers_nodup$transmissionDateTo, format = "%Y-%m-%dT%H:%M:%OSZ", tz = "UTC")
 
+# On peut sortir les données par ssvid, vesselId and first transmission date
+sen_trawlers_nodup %>%
+  arrange(ssvid, vesselId, transmissionDateFrom) %>% View()
 
-View(senegal_trawlers$registryInfo) #most vessels have no registry
-any(senegal_trawlers$registryInfo$vesselInfoReference %in% id_dinteret)
-any(senegal_trawlers$registryInfo$vesselInfoReference %in% senegal_trawlers$selfReportedInfo$vesselId)
+# On filtre et sélectionne
+filtres_date <- sen_trawlers_nodup %>% filter(transmissionDateFrom > "2020-01-01" &
+                               transmissionDateTo < "2025-01-01") %>%
+  select(index, ssvid, shipname, callsign, imo, transmissionDateFrom, transmissionDateTo)
+length(unique(filtres_date$index)) # 33 navires
 
-####NOTA AQUI, INVESTIGAR LOS DUPLICADOS EN LA FUNCION Y PREGUNTAR SOBRE LOS QUE VUELVEN SIN
+# D'autres filtres avec where
+sen_trawlers_dates <- gfw_vessel_info(where = "flag = 'SEN' AND geartypes = 'TRAWLERS' AND
+                transmissionDateFrom > '2020-01-01' AND
+                transmissionDateTo < '2025-01-01'",
+                search_type = "search", print_request = TRUE
+)
+# On enlève les duplicats de vesselId dans selfReportedInfo
+ind_dup_2 <- which(duplicated(sen_trawlers_dates$selfReportedInfo$vesselId))
+sen_trawlers_dates_nodup <- sen_trawlers_dates$selfReportedInfo[-ind_dup_2, ] %>%
+  unnest(sourceCode)  %>%
+  select(index, ssvid, shipname, callsign, imo, transmissionDateFrom, transmissionDateTo)
+
+length(unique(sen_trawlers_dates_nodup$index)) # 39 navires (and results outside of the date range)
