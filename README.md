@@ -6,32 +6,35 @@ Andrea Sánchez-Tapia
 Rocío Joo  
 Rollan Geronimo  
 Paul Tuda  
-Adel Heenan  
+Adel Heenan
+Dame Diop
+Dame Mboup
 
 ## Structure
 
 
 ```
 .
-├── 1_configuration_installation.R
-├── 2_breve_intro_a_R.R
-├── 3_gfw_vessel_info.R
-├── 4_gfw_presence.R
-├── 5_gfw_event.R
-├── 6_gfw_ais_fishing_hours.R
-├── 7_maps_et_figures.R
+├── Jour_1
+│   ├── 1_configuration_installation.R
+│   └── 2_breve_intro_a_R.R
+├── Jour_2
+├── Jour_3
+├── Jour_4
 ├── README.md
-├── data/
-└── gfwr_crodt.Rproj
+├── data
+├── docs
+├── travaux_pratiques
+└── gfwr_crodt_senegal.Rproj
 ```
 
-Téléchargez le répo em .zip en faisant click sur le bouton vert au-desus à droite.  (Dernière option). 
+Téléchargez le dépot em .zip en faisant click sur le bouton vert au-desus à droite.  (Dernière option). 
 
 ![image](https://github.com/user-attachments/assets/c971dca9-f416-410c-942b-4b0c07a40ee9)
 
-Sauvez le fichier `.zip`, décomprimez, et ouvrez le projet en cliquant sur `gfwr_crodt.Rproj`.
+Sauvez le fichier `.zip`, décomprimez, et ouvrez le projet en cliquant sur le fichier `.Rproj`.
 
 
 
-Si vous utilisez git et github, faites fork et clone du répo. 
+Si vous utilisez git et github, vou pouvez faire _fork_ et _clone_ du dépot. 
 
