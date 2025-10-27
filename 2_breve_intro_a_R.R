@@ -108,18 +108,16 @@ class(mix)
 ## Dataframes (tables)
 # C'est le format le plus commun lorsqu'on lit un fichier (excel, csv, txt) sur R
 
-dataframe1 <- data.frame(var1 = "a",
-                         var2 = "b",
-                         var3 = "c")
-dataframe1
-View(dataframe1)
 
-dataframe2 <- data.frame(var1 = c(1, 3, 4),
+dataframe <- data.frame(var1 = c(1, 3, 4),
                         var2 = c("b", "oi", 4),
                         var3 = c(TRUE, TRUE, FALSE))
-dataframe2
+dataframe
 
-names(dataframe2)
+names(dataframe)
+
+#quelles sont les classes des variables du dataframe?
+#class(...)
 
 # chaque colonne est un vecteur: éléments du même type
 # MAIS les colonnes n'ont pas besoin d'être du même type
@@ -128,28 +126,27 @@ names(dataframe2)
 # Une colonne numérique : nombre d'heures,
 # Une colonne logique : est-il un navire de pêche ? TRUE FALSE
 
-# Au cours de cette semaine on verra des fonctions et suites de commandes pour selectionner des données.
+## Listes----
 
-
-## Listes
-
-# Une liste est un objet avec une structure beaucoup moin rigide.
-# Ses éléments peuvent être de n'importe quel nature (y compris d'autres listes).
+# Une liste est un objet avec une structure beaucoup moins rigide.
+# Ses éléments peuvent être de n'importe quelle nature (y compris d'autres listes).
 
 objet1 <- c(1, 3, 4)
-objet2 <- c("b", "oi", 4)
-objet3 <- c(TRUE, TRUE, FALSE)
+objet2 <- dataframe
+objet3 <- c(TRUE, TRUE, FALSE, FALSE, TRUE, FALSE)
 
 liste <- list(objet1, objet2, objet3)
 
 # On peut créer une liste dont les éléments sont nommés :
 liste_nomee <- list(numeriques = objet1,
-                    caracteres = objet2,
+                    mon_dataframe = objet2,
                     logiques = objet3)
+liste_nomee
 
 # On peut aussi donner des noms a une liste déjà créée :
-names(liste) <- c("numeriques", "caracteres", "logiques")
-
+names(liste)
+names(liste) <- c("numeriques", "dataframe", "logiques")
+names(liste)
 str(liste)
 
 # Il y a des façons différentes d'accéder directement à des éléments particuliers
@@ -162,6 +159,12 @@ liste[[1]][2:3]
 liste$numeriques[2:3]
 liste[["numeriques"]][2:3]
 
+
+
+
+
+
+
 # Lecture et pretraitement de données avec un fichier xlsx
 
 library(readxl)
@@ -170,7 +173,7 @@ str(donnees_xlsx) # On observe les colonnes et ses premières valeurs
 
 View(donnees_xlsx) # On voit toute suite des erreurs de type fautes de frappe
 
-# On réfléchi à l'histoire de ce fichier
+# On réfléchit à l'histoire de ce fichier
 # Idéalement, on devrait avoir les données brutes dans un fichier de données, pas en image qui doit ensuite se transformer en tableau excel.
 # Si le fichier a encore de fautes de frappe, il faut vérifier avec des sources officielles
 
