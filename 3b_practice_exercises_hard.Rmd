@@ -1,0 +1,77 @@
+---
+title: "3B. gfwr Practice Exercise - Hard (gfw_vessel_identity)"
+output: 
+  html_document:
+     code_folding: hide
+date: "2025-10-27"
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  #echo = FALSE,       # hide code by default
+  warning = FALSE,    # hide warnings
+  message = FALSE,    # hide messages
+  error = FALSE       # stop knitting on error
+)
+
+# pour charger les packages
+library(gfwr)
+library(tidyr)
+library(dplyr)
+```
+
+## Problem
+
+1.  Get Senegal-flagged vessels that had AIS transmissions from 2021 to 2024.
+2.  How many vessels are there per year?
+3.  Which fishing vessels have changed flags in the past (even going before 2021)?
+
+## Workflow
+
+1.  Let's first pull all SEN-flagged vessels from January to June 2024 using `gfw_vessel_info()` and we can then filter fishing vessel from the output.
+
+```{r get_data}
+# Get all SEN-flagged vessels from 2021 to 2024
+
+sen_vessels <- 
+  gfw_vessel_info(where = "flag = 'SEN' AND 
+                  transmissionDateFrom <= '2024-12-31' AND 
+                  transmissionDateTo >= '2021-01-01'",
+                  search_type = "search", 
+                  print_request = FALSE)
+
+```
+
+2.  After downloading the SEN-flagged vessels, summarizing the number of vessels per year can be done by counting the distinct values of different vessel identifiers such as SSVID, shipname, IMO number, and also the "index" value in the selfReportedinfo slot. But we want to make sure that only vessels that were SEN-flagged during the period 2021 to 2024 are included in the analysis. So we need to get the index for these vessels (we need it later for determining flag changes).
+
+```{r}
+sen_vessels$selfReportedInfo %>% 
+  filter(flag == 'SEN' & transmissionDateFrom <= '2024-12-31' &
+           transmissionDateTo >= '2021-01-01') %>% 
+  # Create a column "years" that is a vector of years based on transmission from and to dates.
+  mutate(year_start = year(transmissionDateFrom),
+           year_end = year(transmissionDateTo)) %>%
+  rowwise() %>%
+  mutate(year = list(seq(year_start, year_end))) %>%
+  unnest(year) %>%
+  ungroup() %>% 
+  filter(year >= 2021) %>%
+  group_by(year) %>% 
+  summarize(index_count = n_distinct(index),
+            ssvid_count = n_distinct(ssvid),
+            imo_count = n_distinct(imo),
+            shipname_count = n_distinct(nShipname))
+```
+
+2.  Which fishing vessels have changed flags in the past (even going before 2021)?
+
+```{r}
+sen_vessels$selfReportedInfo %>% 
+  group_by(index) %>% 
+  summarize(n_flags = n_distinct(flag), 
+            flags = paste0(unique(flag), collapse = " | ")) %>% 
+  filter(n_flags > 1) %>%
+  arrange(desc(n_flags))
+```
+

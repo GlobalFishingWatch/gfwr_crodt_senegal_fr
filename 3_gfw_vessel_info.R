@@ -88,7 +88,7 @@ gfw_vessel_info(search_type = "id", ids = id_test2) #aí só volta a unica id as
 #
 #
 #
-senegal_trawlers2 <- gfw_vessel_info(where = "flag = 'SEN'",
+senegal_trawlers2 <- gfw_vessel_info(where = "flag = 'SEN' AND geartypes = 'TRAWLERS'",
   search_type = "search", print_request = TRUE
   )
 names(senegal_trawlers)

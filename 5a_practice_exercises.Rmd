@@ -1,0 +1,52 @@
+---
+title: "5a_practice_exercises"
+output: html_document
+date: "2025-10-25"
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  #echo = FALSE,       # hide code by default
+  warning = FALSE,    # hide warnings
+  message = FALSE,    # hide messages
+  error = FALSE       # stop knitting on error
+)
+
+# pour charger les packages
+library(gfwr)
+library(tidyr)
+library(dplyr)
+
+# Mapping libraries
+library(ggplot2)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(sf)
+library(tmap)
+```
+
+## Problem
+
+1.  Plot in a map the location of carrier-fishing vessel encounters in 2024 by vessels that had been inside Senegal’s EEZ during the same year.
+2.  Which of these vessels visited Dakar port in 2024?
+
+## Workflow
+
+1.  Since gfw_events() only takes vessel ID values, let's get all the Vessel ID inside Senegal EEZ in 2024. We can also filter already by vessel type 'fishing' and 'carrier'.
+
+```{r}
+# get the region ID for Senegal
+id_reg <- gfw_region_id(region = "Senegal",
+                        region_source = "EEZ")
+
+fishing <- gfw_ais_presence(spatial_resolution = 'LOW',
+                            temporal_resolution = 'YEARLY',
+                            start_date = '2024-01-01',
+                            end_date = '2025-01-01',
+                            region = 8371,
+                            region_source = 'EEZ',
+                            group_by = 'VESSEL_ID',
+                            filter_by = "vessel_type IN ('fishing','carrier'")
+
+```
