@@ -1,0 +1,87 @@
+---
+title: "3A. gfwr Practice Exercise # 1 (gfw_vessel_identity)"
+output: 
+  html_document:
+     code_folding: hide
+date: "2025-10-20"
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  #echo = FALSE,       # hide code by default
+  warning = FALSE,    # hide warnings
+  message = FALSE,    # hide messages
+  error = FALSE       # stop knitting on error
+)
+
+# pour charger les packages
+library(gfwr)
+library(tidyr)
+library(dplyr)
+```
+
+## Problem
+
+Get Senegal-flagged vessels that had AIS transmissions from January 1, 2024 to June 30, 2024.
+
+1.  How many vessels were broadcasting AIS data that were SEN-flagged during this period? Count by unique values of index, nShipname, IMO, and ssvid separately. Why do you think there are differences in total number per identity variable used?
+2.  How many vessels had registry match?
+3.  Which fishing vessels have changed flags in the past?
+
+## Workflow
+
+1.  Let's first pull all SEN-flagged vessels from January to June 2024 using `gfw_vessel_info()` and we can then filter fishing vessel from the output.
+
+```{r get_data}
+# Get all SEN-flagged vessels from January 1, 2024 to June 30, 2024
+
+sen_vessels <- 
+  gfw_vessel_info(where = "flag = 'SEN' AND 
+                  transmissionDateFrom <= '2024-06-30' AND 
+                  transmissionDateTo >= '2024-01-01'",
+                  search_type = "search", 
+                  print_request = FALSE)
+
+```
+
+2.  Counting "vessels" can mean different things depending on the indentity paramater we use. For now, let's count the unique values of SSVID, nShipname, IMO number, and the "index" value in the slot selfReportedInfo. First, we need to filter only for the rows where the transmission start and end dates overlap with our timerange of interest (Jan to June 2024).
+
+```{r}
+
+sen_vessels$selfReportedInfo %>% 
+  filter(flag == 'SEN' & transmissionDateFrom <= '2024-06-30' &
+           transmissionDateTo >= '2024-01-01') %>% 
+    summarize(index_count = n_distinct(index),
+            ssvid_count = n_distinct(ssvid),
+            imo_count = n_distinct(imo),
+            shipname_count = n_distinct(nShipname))
+```
+
+2.  How many had a registry match? We can use the regisryInfo slot. However, since gfw_vessel_info can return also all vessels that were SEN-flagged that were not active in the time range we selected, we should filter again for the transmissionDateFrom and transmissionDateTo range that we are interested in. Based on the code below, there are 22 unique Index values that have vessel registry information. That is out of the 1,599 unique Index values.
+
+```{r}
+# Get the index of vessels that were SEN-flagged from Jan to Jun 2024
+sen_vessel_ids <- 
+  sen_vessels$selfReportedInfo %>% 
+  filter(flag == 'SEN' & transmissionDateFrom <= '2024-06-30' &
+           transmissionDateTo >= '2024-01-01') %>%
+  pull(index)
+
+# Now get the sen_vessels$registryInfo
+sen_vessels$registryInfo %>% 
+    filter(index %in% sen_vessel_ids) %>%
+    pull(index) %>% n_distinct()
+```
+
+3.  To answer how many vessels that was SEN-flagged and transmitting on AIS between January 1 to June 30, 2024 that had flag changes in the past, we can use the selfReportedInfo slot and count the number of unique flags by Index.
+
+```{r}
+
+sen_vessels$selfReportedInfo %>% 
+  group_by(index) %>% 
+  summarize(n_flags = n_distinct(flag), 
+            flags = paste0(unique(flag), collapse = " | ")) %>% 
+  filter(n_flags > 1) %>%
+  arrange(desc(n_flags))
+```
